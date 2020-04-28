@@ -1,0 +1,243 @@
+
+---Tabla Auditoria: Cliente ---
+CREATE TABLE Aud_Cliente (
+Aud_Cli_id INTEGER not null,
+Aud_Cli_nombre VARCHAR (40) NOT NULL,
+Aud_Cli_fecha DATE NOT NULL,
+Aud_Cli_celular VARCHAR (10) NOT NULL,
+Aud_Cli_correo VARCHAR (20) NOT NULL,
+Aud_Cli_operacion VARCHAR NULL,
+Aud_Cli_hora time with time zone null,
+Aud_Cli_usuario varchar 
+);
+
+--------------TRIGGER CLIENTE AUDITORIA INSERTAR-------------
+CREATE OR REPLACE FUNCTION
+auditoria_I_cliente()
+RETURNS TRIGGER AS
+$BODY$ begin
+
+INSERT INTO  Aud_Cliente( Aud_Cli_id, Aud_Cli_nombre, Aud_Cli_fecha, Aud_Cli_celular, Aud_Cli_correo,
+			Aud_Cli_operacion, Aud_Cli_hora, Aud_Ven_usuario)
+		  VALUES( new.Cli_id, new.Cli_nombre, new.Cli_fecha, new.Cli_celular, new.Cli_correo, 'I',
+			current_timestamp, current_user);
+return new;
+end;
+$BODY$
+LANGUAGE plpgsql
+
+CREATE TRIGGER "TR_auditoria_I_cliente"
+AFTER INSERT
+ON Cliente
+FOR EACH ROW
+EXECUTE PROCEDURE auditoria_I_cliente();
+
+
+--------------TRIGGER CLIENTE AUDITORIA DELETE-------------
+CREATE OR REPLACE FUNCTION
+auditoria_D_cliente()
+RETURNS TRIGGER AS
+$BODY$ begin
+
+INSERT INTO  Aud_Cliente( Aud_Cli_id, Aud_Cli_nombre, Aud_Cli_fecha, Aud_Cli_celular, Aud_Cli_correo,
+			Aud_Cli_operacion, Aud_Cli_hora, Aud_Ven_usuario)
+		  VALUES( old.Cli_id, old.Cli_nombre, old.Cli_fecha, old.Cli_celular, old.Cli_correo, 'D',
+			current_timestamp, current_user);
+
+return old;
+end;
+$BODY$
+LANGUAGE plpgsql
+ 
+CREATE TRIGGER "TR_auditoria_D_cliente"
+BEFORE DELETE
+ON Cliente
+FOR EACH ROW
+EXECUTE PROCEDURE auditoria_D_cliente();
+
+--------------TRIGGER CLIENTE AUDITORIA UPDATE-------------
+CREATE OR REPLACE FUNCTION
+auditoria_U_cliente()
+RETURNS TRIGGER AS
+$BODY$ begin
+
+INSERT INTO  Aud_Cliente( Aud_Cli_id, Aud_Cli_nombre, Aud_Cli_fecha, Aud_Cli_celular, Aud_Cli_correo,
+			Aud_Cli_operacion, Aud_Cli_hora, Aud_Ven_usuario)
+		  VALUES( old.Cli_id, old.Cli_nombre, old.Cli_fecha, old.Cli_celular, old.Cli_correo, 'U',
+			current_timestamp, current_user);
+
+return new;
+end;
+
+$BODY$
+LANGUAGE plpgsql
+ 
+CREATE TRIGGER "TR_auditoria_U_cliente"
+AFTER UPDATE
+ON Cliente
+FOR EACH ROW
+EXECUTE PROCEDURE auditoria_U_cliente();
+
+--------------------------------------------------------------------------------------Tabla Auditoria: Venta ---
+
+CREATE TABLE Aud_Venta (
+Aud_Ven_id INTEGER NOT NULL,
+Aud_Cli_id INTEGER not null,
+Aud_Lib_id INTEGER NOT NULL,
+Aud_Ven_cant INTEGER NOT NULL,
+Aud_Ven_fecha DATE NOT NULL,
+Aud_Ven_operacion VARCHAR NULL,
+Aud_Ven_hora time with time zone null,
+Aud_Ven_usuario varchar 
+);
+
+--------------TRIGGER CLIENTE AUDITORIA INSERTAR-------------
+CREATE OR REPLACE FUNCTION
+auditoria_I_venta()
+RETURNS TRIGGER AS
+$BODY$ begin
+
+INSERT INTO  Aud_Venta( Aud_Ven_id, Aud_Cli_id, Aud_Lib_id, Aud_Ven_cant, Aud_Ven_fecha,
+			Aud_Ven_operacion, Aud_Ven_hora, Aud_Ven_usuario)
+		  VALUES( new.Ven_id, new.Cli_id, new.Lib_id, new.Ven_cant, new.Ven_fecha, 'I',
+			current_timestamp, current_user);
+return new;
+end;
+$BODY$
+LANGUAGE plpgsql
+
+CREATE TRIGGER "TR_auditoria_I_venta"
+AFTER INSERT
+ON Venta
+FOR EACH ROW
+EXECUTE PROCEDURE auditoria_I_venta();
+
+
+--------------TRIGGER CLIENTE AUDITORIA DELETE-------------
+CREATE OR REPLACE FUNCTION
+auditoria_D_venta()
+RETURNS TRIGGER AS
+$BODY$ begin
+
+
+INSERT INTO  Aud_Venta( Aud_Ven_id, Aud_Cli_id, Aud_Lib_id, Aud_Ven_cant, Aud_Ven_fecha,
+			Aud_Ven_operacion, Aud_Ven_hora, Aud_Ven_usuario)
+		  VALUES( old.Ven_id, old.Cli_id, old.Lib_id, old.Ven_cant, old.Ven_fecha, 'D',
+			current_timestamp, current_user);
+
+return old;
+end;
+$BODY$
+LANGUAGE plpgsql
+ 
+CREATE TRIGGER "TR_auditoria_D_venta"
+BEFORE DELETE
+ON Venta
+FOR EACH ROW
+EXECUTE PROCEDURE auditoria_D_venta();
+
+--------------TRIGGER CLIENTE AUDITORIA UPDATE-------------
+CREATE OR REPLACE FUNCTION
+auditoria_U_venta()
+RETURNS TRIGGER AS
+$BODY$ begin
+
+INSERT INTO  Aud_Venta( Aud_Ven_id, Aud_Cli_id, Aud_Lib_id, Aud_Ven_cant, Aud_Ven_fecha,
+			Aud_Ven_operacion, Aud_Ven_hora, Aud_Ven_usuario)
+		  VALUES( old.Ven_id, old.Cli_id, old.Lib_id, old.Ven_cant, old.Ven_fecha, 'U',
+			current_timestamp, current_user);
+
+
+return new;
+end;
+
+$BODY$
+LANGUAGE plpgsql
+ 
+CREATE TRIGGER "TR_auditoria_U_venta"
+AFTER UPDATE
+ON Venta
+FOR EACH ROW
+EXECUTE PROCEDURE auditoria_U_venta();
+
+--------------------------------------------------------------------------------------Tabla Auditoria: Libro ---
+
+CREATE TABLE Aud_Libro (
+Aud_Lib_id INTEGER NOT NULL,
+Aud_Lib_nombre VARCHAR (40) NOT NULL,
+Aud_Lib_descrip VARCHAR (400) NOT NULL,
+Aud_Lib_precio FLOAT NOT NULL,
+Aud_Lib_cant INTEGER not null,
+Aud_Lib_fecha_Publ DATE NULL,
+Aud_Lib_operacion VARCHAR NULL,
+Aud_Lib_hora time with time zone null,
+Aud_Lib_usuario varchar 
+);
+--------------TRIGGER LIBRO AUDITORIA INSERTAR-------------
+CREATE OR REPLACE FUNCTION
+auditoria_I_libro()
+RETURNS TRIGGER AS
+$BODY$ begin
+
+INSERT INTO  Aud_Libro( Aud_Lib_id, Aud_Lib_nombre, Aud_Lib_descrip, Aud_Lib_precio, Aud_Lib_cant,
+			Aud_Lib_fecha_Publ, Aud_Lib_operacion, Aud_Lib_hora, Aud_Lib_usuario)
+		  VALUES( new.Lib_id, new.Lib_nombre, new.Lib_descrip, new.Lib_precio, new.Lib_cant, new.Lib_fecha_Publ, 'I',
+			current_timestamp, current_user);
+return new;
+end;
+$BODY$
+LANGUAGE plpgsql
+
+CREATE TRIGGER "TR_auditoria_I_libro"
+AFTER INSERT
+ON Libro
+FOR EACH ROW
+EXECUTE PROCEDURE auditoria_I_libro();
+
+
+--------------TRIGGER LIBRO AUDITORIA DELETE-------------
+CREATE OR REPLACE FUNCTION
+auditoria_D_libro()
+RETURNS TRIGGER AS
+$BODY$ begin
+
+
+
+INSERT INTO  Aud_Libro( Aud_Lib_id, Aud_Lib_nombre, Aud_Lib_descrip, Aud_Lib_precio, Aud_Lib_cant,
+			Aud_Lib_fecha_Publ, Aud_Lib_operacion, Aud_Lib_hora, Aud_Lib_usuario)
+		  VALUES( old.Lib_id, old.Lib_nombre, old.Lib_descrip, old.Lib_precio, old.Lib_cant, old.Lib_fecha_Publ, 'D',
+			current_timestamp, current_user);
+return old;
+end;
+$BODY$
+LANGUAGE plpgsql
+ 
+CREATE TRIGGER "TR_auditoria_D_libro"
+BEFORE DELETE
+ON Libro
+FOR EACH ROW
+EXECUTE PROCEDURE auditoria_D_libro();
+
+--------------TRIGGER LIBRO AUDITORIA UPDATE-------------
+CREATE OR REPLACE FUNCTION
+auditoria_U_libro()
+RETURNS TRIGGER AS
+$BODY$ begin
+
+INSERT INTO  Aud_Libro( Aud_Lib_id, Aud_Lib_nombre, Aud_Lib_descrip, Aud_Lib_precio, Aud_Lib_cant,
+			Aud_Lib_fecha_Publ, Aud_Lib_operacion, Aud_Lib_hora, Aud_Lib_usuario)
+		  VALUES( old.Lib_id, old.Lib_nombre, old.Lib_descrip, old.Lib_precio, old.Lib_cant, old.Lib_fecha_Publ, 'D',
+			current_timestamp, current_user);
+
+
+return new;
+end;
+
+$BODY$
+LANGUAGE plpgsql
+ 
+CREATE TRIGGER "TR_auditoria_U_libro"
+AFTER UPDATE
+ON Libro
+FOR EACH ROW
+EXECUTE PROCEDURE auditoria_U_libro();
