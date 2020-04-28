@@ -1,0 +1,95 @@
+create or replace function ai_Autor () returns trigger as
+$BODY$ 
+	begin 
+		if(new.Aut_id = null) then
+			raise exception 'El codigo del autor no puede estar vacio.';
+		end if;
+		if (exists(select * from Autor where Aut_id = new.Aut_id)) then
+			raise exception 'El autor ya se encuentra registrado.';
+		end if;
+		if (not exists(select * from Categoria where Cat_id = new.Cat_id)) then
+			raise exception 'La categoria no se encuentra registrada en la base de datos.';
+		end if;
+		return new;
+	end;
+$BODY$ 
+language 'plpgsql';
+
+drop trigger ai_persona on Autor;
+
+create trigger ai_Autor before insert on Autor for each row execute procedure ai_Autor();
+-------------------------------------------------------------------------------------------------------
+create or replace function ai_Libro () returns trigger as
+$BODY$ 
+	begin 
+		if(new.Lib_id  = null) then
+			raise exception 'El codigo del libro no puede estar vacio.';
+		end if;
+		if (exists(select * from Libro where Lib_id = new.Lib_id)) then
+			raise exception 'El libro ya se encuentra registrado.';
+		end if;
+		if(new.Lib_precio = null) then
+			raise exception 'El campo de precio no puede ir vacio.';
+		end if;
+		if(new.Lib_cant = null) then
+			raise exception 'Se debe asignar la cantidad de libros en STOCK.';
+		end if;
+		return new;
+	end;
+$BODY$ 
+language 'plpgsql';
+
+drop trigger ai_Libro on Autor;
+
+create trigger ai_Libro before insert on Libro for each row execute procedure ai_Libro();
+-------------------------------------------------------------------------------------------------------
+
+create or replace function ai_Venta () returns trigger as
+$BODY$ 
+	begin 
+		if(new.Ven_id = null) then
+			raise exception 'El codigo de venta no puede estar vacio.';
+		end if;
+		if (exists(select * from Venta where Ven_id = new.Ven_id)) then
+			raise exception 'El codigo de venta ya se encuentra registrado.';
+		end if;
+		if (not exists(select * from Cliente where Cli_id = new.Cli_id)) then
+			raise exception 'El cliente no se encuentra registrada en la base de datos.';
+		end if;
+		if (not exists(select * from Libro where Lib_id = new.Lib_id)) then
+			raise exception 'El libro no se encuentra registrada en la base de datos.';
+		end if;
+		return new;
+	end;
+$BODY$ 
+language 'plpgsql';
+
+drop trigger ai_Venta on Autor;
+
+create trigger ai_Venta before insert on Venta for each row execute procedure ai_Venta();
+
+--------------------------------------------------------------------------------------------------------------
+---ACTUALIZA CANTIDAD DE LIBROS ---
+
+create or replace function ai_VentaLibro() returns trigger as
+$$
+declare r record;
+begin
+	if exists(select * from Libro where Lib_id=new.Lib_id) then
+	    select * into r from Libro where Lib_id=new.Lib_id;
+
+		if r.Lib_cant >= new.Ven_cant then
+			update Libro set Lib_cant=Lib_cant-new.Ven_cant where Lib_id=new.Lib_id;
+		else
+			raise exception 'Productos Insuficientes en Stock';
+		end if;
+
+	else
+		raise exception 'El libro no existe';
+	end if;
+return new;
+end;
+$$
+language plpgsql;
+
+create trigger ai_VentaLibro before insert on Venta for each row execute procedure ai_VentaLibro();
